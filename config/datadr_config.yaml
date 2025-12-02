@@ -1,0 +1,42 @@
+llm:
+  provider: openai
+  model: gpt-5-mini
+  temperature: 0.0
+
+cluster:
+  adapter_class: datadr.cluster.local.LocalClusterAdapter
+
+job_repo:
+  root_path: "../jobs" # Relative to where we run the demo
+  job_file: job.py
+
+context:
+  enabled: true
+  providers: ["local", "git", "github_api", "mcp"]
+  
+  git:
+    enabled: true
+    lookback_hours: 24
+    
+  github_api:
+    enabled: true
+    # Token loaded from env var GITHUB_API_TOKEN automatically
+    # Or set here: api_token: "ghp_..."
+    repo_owner: "your-org"
+    repo_name: "revenue-attribution"
+    
+  mcp_servers:
+    - name: "postgres-prod-catalog"
+      command: "python"
+      args: ["postgres_mcp.py"]
+      env:
+        # Pass DB creds to the MCP server process
+        POSTGRES_USER: "admin"
+        POSTGRES_PASSWORD: "password"
+        POSTGRES_DB: "analytics"
+        POSTGRES_HOST: "localhost"
+        POSTGRES_PORT: "5433"
+        PYTHONUNBUFFERED: "1"
+
+investigation:
+  output_dir: "./output"
